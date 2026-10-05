@@ -1,0 +1,30 @@
+pipeline:
+  id: pipeline_neo413001_fuzzgoat_neo_build_0ac7
+  name: pipeline_neo413001_fuzzgoat_neo_build_0ac7
+  stages:
+    - id: build
+      name: Build and Test
+      runtime: cloud
+      clone:
+        enabled: true
+      cache:
+        enabled: true
+      steps:
+        - id: build
+          name: Build
+          run:
+            shell: bash
+            script: |-
+              echo "Building fuzzgoat..."
+              gcc -o fuzzgoat -I. main.c fuzzgoat.c -lm
+              echo "Build completed successfully"
+        - id: smoke_test
+          name: Smoke Test
+          run:
+            shell: bash
+            script: |-
+              echo "Running smoke test with valid JSON input..."
+              ./fuzzgoat input-files/validObject
+              echo "Smoke test passed"
+  tags:
+    onboarding: "true"
