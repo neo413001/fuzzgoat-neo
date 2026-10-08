@@ -1,0 +1,36 @@
+pipeline:
+  id: pipeline_neo413001_fuzzgoat_neo_build_e3c9
+  name: pipeline_neo413001_fuzzgoat_neo_build_e3c9
+  stages:
+    - name: Build and Test
+      id: build_and_test
+      clone:
+        enabled: true
+      cache:
+        enabled: true
+      runtime: cloud
+      steps:
+        - name: Build
+          id: build
+          run:
+            shell: bash
+            script: |-
+              echo "Building with gcc instead of afl-gcc..."
+              gcc --version
+              make CC=gcc
+              ls -la fuzzgoat fuzzgoat_ASAN
+        - name: Smoke Test
+          id: smoke_test
+          run:
+            shell: bash
+            script: |-
+              echo "Running smoke tests against valid input files..."
+              for file in input-files/*; do
+                echo "Testing with: $file"
+                ./fuzzgoat "$file" && echo "PASSED: $file" || echo "FAILED: $file (expected for some test cases)"
+              done
+              echo "Running with validObject (should succeed)..."
+              ./fuzzgoat input-files/validObject
+              echo "Smoke tests completed"
+  tags:
+    onboarding: "true"
